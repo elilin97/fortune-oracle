@@ -26,22 +26,22 @@ metadata:
 
 ## 环境与路径（必读）
 
-**关键约定**：本技能的所有文件路径必须使用绝对路径，确保在任何 session（main/isolated）中都能正确读取。
+**关键约定**：本技能使用 `{baseDir}` 作为路径基准，避免硬编码环境路径，确保在不同 session（main/isolated）中都能正确读取。
 
 ### 路径定义
 
-- **技能根目录（固定）**：`/Users/linserver/.openclaw/workspace/skills/fortune-oracle`
-- **推演规则文件**：`/Users/linserver/.openclaw/workspace/skills/fortune-oracle/fortune_rules.md`
-- **档案模板文件**：`/Users/linserver/.openclaw/workspace/skills/fortune-oracle/user_chart_profile.md`
-- **用户档案文件**：`/Users/linserver/.openclaw/workspace/skills/fortune-oracle/user_chart_profile.json`
+- **技能根目录（基准）**：`{baseDir}`
+- **推演规则文件**：`{baseDir}/fortune_rules.md`
+- **档案模板文件**：`{baseDir}/user_chart_profile.md`
+- **用户档案文件**：`{baseDir}/user_chart_profile.json`
 
 ### 读取顺序（强制执行）
 
 在开始任何推演之前，必须按以下顺序使用 `read` 工具读取文件：
 
-1. **必读**：`read /Users/linserver/.openclaw/workspace/skills/fortune-oracle/fortune_rules.md`
-2. **必读**：`read /Users/linserver/.openclaw/workspace/skills/fortune-oracle/user_chart_profile.md`
-3. **可选**：`read /Users/linserver/.openclaw/workspace/skills/fortune-oracle/user_chart_profile.json`（若文件不存在则提示用户建档）
+1. **必读**：`read {baseDir}/fortune_rules.md`
+2. **必读**：`read {baseDir}/user_chart_profile.md`
+3. **可选**：`read {baseDir}/user_chart_profile.json`（若文件不存在则提示用户建档）
 
 ### 错误处理
 
@@ -58,7 +58,7 @@ metadata:
 
 ## 输入理解
 
-- 生日：支持 `1993-11-19`、`1993年11月19日`。
+- 生日：支持 `YYYY-MM-DD`、`YYYY年MM月DD日`。
 - 查询日期：默认"今天"；若是夜间推送场景，默认"明天"。
 - 星盘：支持用户直接粘贴完整命盘文本（如"命盘十二宫/主星/辅星/神煞/大限小限流年"等）。
 - 星盘优先：若用户提供了完整星盘，优先走"星盘规则 + 日期规则"的混合推演。
@@ -74,23 +74,23 @@ metadata:
 
 ### 文件约定（非常重要）
 
-- 存档模板（只读，不包含个人数据）：`/Users/linserver/.openclaw/workspace/skills/fortune-oracle/user_chart_profile.md`
+- 存档模板（只读，不包含个人数据）：`{baseDir}/user_chart_profile.md`
   - 该文件仅定义：应保存哪些字段、JSON 的结构与字段说明、更新策略等。
-- 用户个人档案（唯一持久化文件，结构化）：`/Users/linserver/.openclaw/workspace/skills/fortune-oracle/user_chart_profile.json`
+- 用户个人档案（唯一持久化文件，结构化）：`{baseDir}/user_chart_profile.json`
 
 
 ### 初始化建档流程
 
-1. 从用户提供的星盘文本中提取并整理字段（字段集合以 `/Users/linserver/.openclaw/workspace/skills/fortune-oracle/user_chart_profile.md` 为准）。
+1. 从用户提供的星盘文本中提取并整理字段（字段集合以 `{baseDir}/user_chart_profile.md` 为准）。
 2. 生成结构化档案并写入：
-   - `/Users/linserver/.openclaw/workspace/skills/fortune-oracle/user_chart_profile.json`
+  - `{baseDir}/user_chart_profile.json`
 3. 记录 `updated_at` 与 `schema_version`（由模板约定）。
 4. 若用户说"更新星盘/重置星盘/换盘"，覆盖该 JSON 并重新建档。
 
 ### 复用逻辑
 
 - 若用户未显式提供星盘文本，必须先尝试 `read`：
-  - `/Users/linserver/.openclaw/workspace/skills/fortune-oracle/user_chart_profile.json`
+  - `{baseDir}/user_chart_profile.json`
 - 若 JSON 不存在或读取失败，提示用户进行一次初始化建档。
 
 ### 环境限制降级
@@ -226,7 +226,7 @@ metadata:
 默认推送时间：用户本地时间 `21:00`（可被 cron 覆盖）。
 
 推送时若未显式提供生日/星盘：
-- 优先读取已建档 JSON（先 `/workspace/...` 再 `/agent/...`）。
+- 优先读取已建档 JSON（先主工作目录路径，再宿主镜像路径）。
 - 若无档案：提示用户先建档或粘贴星盘。
 
 实现约束：
@@ -238,9 +238,9 @@ metadata:
 
 在开始推演前，必须使用 `read` 工具依次读取：
 
-1. `/Users/linserver/.openclaw/workspace/skills/fortune-oracle/fortune_rules.md`（核心推演规则）
-2. `/Users/linserver/.openclaw/workspace/skills/fortune-oracle/user_chart_profile.md`（JSON 档案模板/字段约定）
-3. `/Users/linserver/.openclaw/workspace/skills/fortune-oracle/user_chart_profile.json`（若存在则优先使用）
+1. `{baseDir}/fortune_rules.md`（核心推演规则）
+2. `{baseDir}/user_chart_profile.md`（JSON 档案模板/字段约定）
+3. `{baseDir}/user_chart_profile.json`（若存在则优先使用）
 
 读取完成后，再按规则进行确定性推演。若第 3 项不存在，则要求用户提供星盘文本并执行初始化建档。
 

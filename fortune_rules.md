@@ -309,16 +309,16 @@
 ```json
 {
   "profileVersion": "1.0.0",
-  "updatedAt": "2026-03-01T22:30:00+08:00",
+  "updatedAt": "<YYYY-MM-DDTHH:mm:ss+08:00>",
   "basic": {
-    "gender": "女",
-    "clockTime": "1993-11-19 21:10",
-    "trueSolarTime": "1993-11-19 20:42",
-    "lunarTime": "癸酉年十月初六日亥时",
-    "baziJieqi": "癸酉 癸亥 辛丑 己亥",
-    "baziNonJieqi": "癸酉 癸亥 辛丑 己亥",
-    "mingZhu": "天同",
-    "shenZhu": "天梁"
+    "gender": "<待填写>",
+    "clockTime": "<YYYY-MM-DD HH:mm>",
+    "trueSolarTime": "<YYYY-MM-DD HH:mm>",
+    "lunarTime": "<待填写>",
+    "baziJieqi": "<待填写>",
+    "baziNonJieqi": "<待填写>",
+    "mingZhu": "<待填写>",
+    "shenZhu": "<待填写>"
   },
   "chartRaw": "<原始命盘文本>",
   "chartSummary": "<结构化摘要>"
